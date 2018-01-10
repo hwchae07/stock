@@ -25,12 +25,10 @@ fin = open("kospi.csv","r")
 lines = fin.readlines()
 
 evtNumber = len(lines)
-evtNumber = 100
+#evtNumber = 20
 
-#for ticker in range(len(lines)):
 for ticker in range(evtNumber):
-    print (ticker)
-    if( (ticker % 10) != 0):
+    if( (ticker % 20) == 0):
         progress = float(ticker)/float(evtNumber)*100
         print (str(progress)+"%")
     
@@ -41,10 +39,6 @@ for ticker in range(evtNumber):
         tree[ticker] = get_profile_naver(lines[ticker].strip())
 
 tree.T.to_csv("./info_kospi.csv")
-
-
-#print(tree.T)
-
 
 fin.close()
 

@@ -54,7 +54,7 @@ def get_profile_naver(ticker):
     per_table = soup.find(class_= "per_table") #per table 찾기
     per = per_table.find_next("em",{"id" : "_per"}) #per 항목 가져옴
     pbr = per_table.find_next("em",{"id" : "_pbr"}) #pbr 항목 가져옴
-    dvr = per_table.find_next("em",{"id" : "_dvr"}) #배당수익률 가져옴
+    dvr = per_table.find_next("em", {"id": "_dvr"})  # 배당수익률 가져옴
 
     # 상장된지 얼마 안된 기업의 경우 PER,PBR DVR이 없어서 0을 대신해서 넣는다. 나중에 None을 넣던지...
     if per is None:
@@ -90,13 +90,18 @@ def get_profile_naver(ticker):
     # noinfo가 있을 경우에 quick ratio에 0을 넣는다... 나중에 None 넣던지...
     earning_table = soup.find(class_="noinfo")
     if earning_table is None:
-        d  = soup.find(text = "당좌비율") #당좌비율 찾기1
-        d_ = d.find_all_next(class_="") #당좌비율 찾기2
-        quick = float(d_[2].text) #당좌비율 숫자로
+
+        d  = soup.find(class_="h_th2 th_cop_anal15")
+        d  = d.find_next(text="당좌비율")  # 당좌비율 찾기1
+        d  = d.find_all_next("td")
+        try:
+            quick = float(d[2].text)
+        except:
+            quick = 0 #나중에 None 넣던지...
     else:
         quick = 0 #나중에 None 넣던지...
         
-    title.append("당좌비율 (%)") 
+    title.append("당좌비율 (%)")
     data.append(quick) #당좌비율 저장
 
     #pd.set_option("display.column_space",20)
@@ -105,8 +110,8 @@ def get_profile_naver(ticker):
     return info
 
 
-
-print (get_profile_naver("079440"))
+#print (get_profile_naver("005930"))
+#print (get_profile_naver("079440"))
 
 
 
