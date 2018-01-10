@@ -2,6 +2,8 @@
 from fs_naver import *
 from fs_sejong import *
 import time
+import random
+import pandas as pd
 #import matplotlib.pyplot as plt
 
 #print(get_profile_naver("002460"))
@@ -21,27 +23,42 @@ print(df.T)
 """
 
 
-fin = open("kospi.csv","r")
-lines = fin.readlines()
+def fs_to_csv(marketName="kospi",groupIndex=1):
+    fin = open(marketName+".csv","r")
+    lines = fin.readlines()
+    fin.close()
 
-evtNumber = len(lines)
-#evtNumber = 20
+    evtNumber = len(lines)
+    numberGroup = int(evtNumber/100+1)
+    groupRange = range((groupIndex-1)*100,groupIndex*100)
+    if(evtNumber < groupIndex*100):
+        groupRange = range((groupIndex-1)*100,evtNumber)
+    if(numberGroup < groupIndex):
+        print ("No data...")
+        return 0
+    print (groupRange)
 
-for ticker in range(evtNumber):
-    print (ticker)
-    if( (ticker % 20) == 0):
-        progress = float(ticker)/float(evtNumber)*100
-        print (str(progress)+"%")
-    
-    time.sleep(0.1)
-    if(ticker == 0):
-        tree = get_profile_naver(lines[ticker].strip())
-    else:
-        tree[ticker] = get_profile_naver(lines[ticker].strip())
+    for ticker in groupRange:
+        print (ticker)
 
-tree.T.to_csv("./info_kospi.csv")
+        time.sleep(0.5)
+        if(ticker == groupRange[0]):
+            tree = get_profile_naver(lines[ticker].strip())
+            tree.columns.values[0] = ticker
+        else:
+            tree[ticker] = get_profile_naver(lines[ticker].strip())
 
-fin.close()
+
+    tree.T.to_csv("./info_"+marketName+"_%d.csv" % groupIndex)
+    print("save "+marketName+" is done...")
+
+    return 1
+
+
+
+#fs_to_csv("kospi",5)
+#fs_to_csv("kosdaq",12)
+
 
 
 
