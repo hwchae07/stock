@@ -28,6 +28,7 @@ evtNumber = len(lines)
 #evtNumber = 20
 
 for ticker in range(evtNumber):
+    print (ticker)
     if( (ticker % 20) == 0):
         progress = float(ticker)/float(evtNumber)*100
         print (str(progress)+"%")

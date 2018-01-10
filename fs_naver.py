@@ -52,15 +52,23 @@ def get_profile_naver(ticker):
     data.append(number_) #상장주식수 저장
 
     per_table = soup.find(class_= "per_table") #per table 찾기
-    per = per_table.find_next("em",{"id" : "_per"}) #per 항목 가져옴
-    pbr = per_table.find_next("em",{"id" : "_pbr"}) #pbr 항목 가져옴
-    dvr = per_table.find_next("em", {"id": "_dvr"})  # 배당수익률 가져옴
+    #ETF 같은 애들은 per_table이 없음...
+    if per_table is None:
+        per = None
+        pbr = None
+        dvr = None
+        IsEarningTable = False
+    else:
+        per = per_table.find_next("em",{"id" : "_per"}) #per 항목 가져옴
+        pbr = per_table.find_next("em",{"id" : "_pbr"}) #pbr 항목 가져옴
+        dvr = per_table.find_next("em", {"id": "_dvr"})  # 배당수익률 가져옴
+        IsEarningTable = True
 
     # 상장된지 얼마 안된 기업의 경우 PER,PBR DVR이 없어서 0을 대신해서 넣는다. 나중에 None을 넣던지...
     if per is None:
         per = 0
     else:
-        per = float(per.text)
+        per = float(per.text.replace(",",""))
         
     if pbr is None:
         pbr = 0
@@ -86,11 +94,13 @@ def get_profile_naver(ticker):
     #per_table = soup.find(class_= "per_table")
     #per = per_table.find_next("em",{"id" : "_per"})
 
+
     # 기업실적분석 테이블에 정보가 없을 경우 noinfo 가 있는 것을 이용해서
     # noinfo가 있을 경우에 quick ratio에 0을 넣는다... 나중에 None 넣던지...
     earning_table = soup.find(class_="noinfo")
-    if earning_table is None:
-
+    if IsEarningTable is False:
+        quick = 0
+    elif earning_table is None:
         d  = soup.find(class_="h_th2 th_cop_anal15")
         d  = d.find_next(text="당좌비율")  # 당좌비율 찾기1
         d  = d.find_all_next("td")
@@ -110,6 +120,8 @@ def get_profile_naver(ticker):
     return info
 
 
+#print(get_profile_naver("009410"))
+#print( get_profile_naver("204210"))
 #print (get_profile_naver("005930"))
 #print (get_profile_naver("079440"))
 
