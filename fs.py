@@ -60,8 +60,22 @@ def fs_to_csv(marketName="kospi",groupIndex=1):
 #fs_to_csv("kosdaq",12)
 
 
+pd.set_option('expand_frame_repr',False)
+tree = pd.read_csv("./info_kospi_1.csv",encoding='cp949').T
+for i in range(1):
+    fileAdd = "./info_kospi_%d.csv"%(i+2)
+    treeAdd = pd.read_csv(fileAdd,encoding='cp949').T
+    tree = pd.concat([tree,treeAdd],axis=1).T
 
 
+#tree1 = pd.read_csv("./info_kospi_1.csv",encoding='cp949').T
+#tree2 = pd.read_csv("./info_kospi_2.csv",encoding='cp949').T
+#tree = pd.concat([tree1,tree2],axis=1).T
+
+
+
+print (tree[(abs(tree["PBR"]-0.7)<0.3) & (abs(tree["PER"]-7)<7) ])
+#print (tree.T)
 
 """
 table = get_fin_table_sejong_data("002460","a")
