@@ -2,6 +2,8 @@
 from fs_naver import *
 from fs_sejong import *
 import time
+import random
+import getCodes
 #import matplotlib.pyplot as plt
 
 #print(get_profile_naver("002460"))
@@ -21,8 +23,8 @@ print(df.T)
 """
 
 
-fin = open("kospi.csv","r")
-lines = fin.readlines()
+df_master = getCodes.stock_master(1)
+lines = df_master['종목코드']
 
 evtNumber = len(lines)
 #evtNumber = 20
@@ -32,8 +34,8 @@ for ticker in range(evtNumber):
     if( (ticker % 20) == 0):
         progress = float(ticker)/float(evtNumber)*100
         print (str(progress)+"%")
-    
-    time.sleep(0.1)
+    rand = random.random()*0.1
+    time.sleep(0.1+rand)
     if(ticker == 0):
         tree = get_profile_naver(lines[ticker].strip())
     else:
