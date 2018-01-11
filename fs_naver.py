@@ -1,4 +1,5 @@
 #!/usr/local/bin/python3
+#-*- coding: utf-8 -*- 
 #naver에서 가져와보자...
 
 from urllib.request import urlopen, Request

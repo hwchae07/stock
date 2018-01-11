@@ -1,4 +1,5 @@
 #!/usr/local/bin/python3
+#-*- coding: utf-8 -*- 
 #아래 페이지 그대로 가져옴
 #http://blog.naver.com/PostView.nhn?blogId=htk1019&logNo=221035489722&parentCategoryNo=&categoryNo=&viewDate=&isShowPopularPosts=false&from=postView
 

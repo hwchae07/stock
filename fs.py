@@ -1,4 +1,5 @@
 #!/usr/local/bin/python3
+#-*- coding: utf-8 -*- 
 from fs_naver import *
 from fs_sejong import *
 import time
@@ -62,19 +63,31 @@ def fs_to_csv(marketName="kospi",groupIndex=1):
 
 pd.set_option('expand_frame_repr',False)
 tree = pd.read_csv("./info_kospi_1.csv",encoding='cp949').T
-for i in range(1):
+for i in range(7):
     fileAdd = "./info_kospi_%d.csv"%(i+2)
     treeAdd = pd.read_csv(fileAdd,encoding='cp949').T
-    tree = pd.concat([tree,treeAdd],axis=1).T
+    tree = pd.concat([tree,treeAdd],axis=1)
 
+for i in range(13):
+    fileAdd = "./info_kosdaq_%d.csv"%(i+1)
+    treeAdd = pd.read_csv(fileAdd,encoding='cp949').T
+    tree = pd.concat([tree,treeAdd],axis=1)
+
+tree = tree.T
 
 #tree1 = pd.read_csv("./info_kospi_1.csv",encoding='cp949').T
 #tree2 = pd.read_csv("./info_kospi_2.csv",encoding='cp949').T
 #tree = pd.concat([tree1,tree2],axis=1).T
 
 
+#print (tree.columns[7])
+screen1 = tree[ (tree["PBR"] > 0.4) & (tree["PBR"] < 1.2) ]
+screen2 = screen1[(screen1["PER"]>3) &  (screen1["PER"]<15)] #PER cut
+screen3 = screen2[screen2[tree.columns[7]]>2]
+screen4 = screen3[screen3[tree.columns[8]]>80]
 
-print (tree[(abs(tree["PBR"]-0.7)<0.3) & (abs(tree["PER"]-7)<7) ])
+print (screen4)
+screen4.to_csv("./screen.csv")
 #print (tree.T)
 
 """
