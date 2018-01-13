@@ -5,6 +5,8 @@ from fs_sejong import *
 import time
 import random
 import pandas as pd
+import numpy as np
+import tabulate as tabulate
 #import matplotlib.pyplot as plt
 
 #print(get_profile_naver("002460"))
@@ -86,9 +88,21 @@ screen2 = screen1[(screen1["PER"]>3) &  (screen1["PER"]<15)] #PER cut
 screen3 = screen2[screen2[tree.columns[7]]>2]
 screen4 = screen3[screen3[tree.columns[8]]>80]
 
-print (screen4)
+# 종목코드를 6자리로 만들기 위한 코드 두 줄
+# screen4.loc[:, ('종목코드')] = screen4.loc[:, ('종목코드')].astype(np.str)
+# screen4.loc[:, ('종목코드')] = screen4.loc[:, ('종목코드')].str.zfill(6)
+# screen4.loc[:, ('종목코드')] = 1
+
+# dfmi.loc[:,('one','second')] = value
+
+#첫 열이 의미가 없어서 지움
+screen4.drop('Unnamed: 0', 1)
+
+# print(screen4['종목코드'])
+print(tabulate.tabulate(screen4, headers="keys", tablefmt='pipe'))
 screen4.to_csv("./screen.csv")
 #print (tree.T)
+
 
 """
 table = get_fin_table_sejong_data("002460","a")
