@@ -98,23 +98,27 @@ print (v)
 """
 
 
-def get_fin_table_sejong_data(ticker,freq='a'):
+def get_fin_table_sejong_data(ticker, freq='a'):
     """
     :param ticker : 종목코드
     :return: 재무데이터 테이블 전체를 반환한다.
     """
-    try :
+    try:
         # 연간 재무데이터 테이블을 한꺼번에 가져옵니다.
-        if freq =='a':
+        if freq == 'a':
             fs_url = "http://www.sejongdata.com/business_include_fr/table_main0_bus_01.html?no="+ ticker + "&gubun=2"
             df = pd.read_html(fs_url, encoding='utf-8')[1]
             df = df.T
+            df.columns = df.iloc[0]
+            df = df.drop([0])
+            df = df.rename(index=str, columns={df.columns[0]: "연도"})
+            
 
         # 분기 재무데이터 테이블을 한꺼번에 가져옵니다.
-        elif freq=='q':
+        elif freq == 'q':
             fs_url = "http://www.sejongdata.com/business_include_fr/table_main0_bus_02.html?no=" + ticker
             df = pd.read_html(fs_url, encoding='utf-8')
-        else :
+        else:
             fs_url = None
             df = None
     except AttributeError as e:
