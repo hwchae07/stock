@@ -74,7 +74,7 @@ def ext_fin_sejong_data(ticker, item, n, freq):
     html_text = get_html_sejong_fs(ticker, freq)
 
     soup = bs(html_text, 'lxml')
-    d = soup.find(text=item)
+    d  = soup.find(text=item)
     d_ = d.find_all_next(class_="bus_board_txt1")
 
     #계정의 과거 데이터 수 : 연간재무정보 또는 재무비율 은 10 개 분기재무정보는 12개

@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup as bs
 from pandas import Series, DataFrame
 import pandas as pd
 import re
+import numpy as np
 
 def get_fs_naver(ticker,item):
     fs_url = "http://finance.naver.com/item/main.nhn?code="+ticker
@@ -67,17 +68,17 @@ def get_profile_naver(ticker):
 
     # 상장된지 얼마 안된 기업의 경우 PER,PBR DVR이 없어서 0을 대신해서 넣는다. 나중에 None을 넣던지...
     if per is None:
-        per = 0
+        per = np.NaN
     else:
         per = float(per.text.replace(",",""))
         
     if pbr is None:
-        pbr = 0
+        pbr = np.NaN
     else:
         pbr = float(pbr.text)
         
     if dvr is None:
-        dvr = 0
+        dvr = np.NaN
     else:
         dvr = float(dvr.text)
         
@@ -100,20 +101,55 @@ def get_profile_naver(ticker):
     # noinfo가 있을 경우에 quick ratio에 0을 넣는다... 나중에 None 넣던지...
     earning_table = soup.find(class_="noinfo")
     if IsEarningTable is False:
-        quick = 0
+        quick = np.NaN
+        sales = np.NaN
+        oP = np.NaN
     elif earning_table is None:
-        d  = soup.find(class_="h_th2 th_cop_anal15")
-        d  = d.find_next(text="당좌비율")  # 당좌비율 찾기1
+        # 당좌비율 찾기1
+        # d  = soup.find(class_="h_th2 th_cop_anal15")
+        d  = soup.find(text="당좌비율")
+        # print(d)
         d  = d.find_all_next("td")
+
+        # 매출액 찾기
+        # dd = soup.find(class_='h_th2 th_cop_comp7')
+        dd = soup.find(text="매출액")
+        dd = dd.find_all_next("td")
+
+        # print(dd)
+
+        # 영업이익 찾기
+        # ddd = soup.find(class_='h_th2 th_cop_comp9')
+        ddd = soup.find(text="영업이익")
+        ddd = ddd.find_all_next("td")
+
         try:
             quick = float(d[2].text)
         except:
-            quick = 0 #나중에 None 넣던지...
+            quick = np.NaN #나중에 None 넣던지...
+
+        try:
+            sales = float(re.search('\d+', dd[2].text.replace(',', ''))[0])
+        except:
+            sales = np.NaN # 나중에 None 넣던지...
+
+        try:
+            oP = float(re.search('\d+', ddd[2].text.replace(',', ''))[0])
+        except:
+            oP = np.NaN  # 나중에 None 넣던지...
     else:
         quick = 0 #나중에 None 넣던지...
-        
+        sales = 0
+        oP = 0
+
     title.append("당좌비율 (%)")
-    data.append(quick) #당좌비율 저장
+    data.append(quick)  # 당좌비율 저장
+
+    title.append("매출액 (억)")
+    data.append(sales)  # 매출액 저장
+
+    title.append("영업이익 (억)")
+    data.append(oP)  # 영업이익 저장
 
     #pd.set_option("display.column_space",20)
     info = DataFrame(data,index=title) #DataFrame형식으로 저장
@@ -121,7 +157,7 @@ def get_profile_naver(ticker):
     return info
 
 
-#print(get_profile_naver("009410"))
+# print(get_profile_naver("092780"))
 #print( get_profile_naver("204210"))
 #print (get_profile_naver("005930"))
 #print (get_profile_naver("079440"))

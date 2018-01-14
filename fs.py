@@ -7,6 +7,7 @@ import random
 import pandas as pd
 import numpy as np
 import tabulate as tabulate
+import glob
 #import matplotlib.pyplot as plt
 
 #print(get_profile_naver("002460"))
@@ -30,12 +31,12 @@ def fs_to_csv(marketName="kospi",groupIndex=1):
     fin = open(marketName+".csv","r")
     lines = fin.readlines()
     fin.close()
-
+    howMany = 150
     evtNumber = len(lines)
-    numberGroup = int(evtNumber/100+1)
-    groupRange = range((groupIndex-1)*100,groupIndex*100)
-    if(evtNumber < groupIndex*100):
-        groupRange = range((groupIndex-1)*100,evtNumber)
+    numberGroup = int(evtNumber/howMany+1)
+    groupRange = range((groupIndex-1)*howMany,groupIndex*howMany)
+    if(evtNumber < groupIndex*howMany):
+        groupRange = range((groupIndex-1)*howMany,evtNumber)
     if(numberGroup < groupIndex):
         print ("No data...")
         return 0
@@ -58,49 +59,75 @@ def fs_to_csv(marketName="kospi",groupIndex=1):
     return 1
 
 
+for i in range(1, 10):
+    try:
+        fs_to_csv("kosdaq", i)
+    except:
+        try:
+            fs_to_csv("kosdaq", i)
+        except:
+            print('%d-th kosdaq data importing fail' % i)
+            continue
 
-#fs_to_csv("kospi",5)
-#fs_to_csv("kosdaq",12)
+for i in range(1, 10):
+    try:
+        fs_to_csv("kospi", i)
+    except:
+        try:
+            fs_to_csv("kospi", i)
+        except:
+            print('%d-th kospi data importing fail' % i)
+            continue
+
+
+#get number of files
+nKosdaq = len(glob.glob("info_kosdaq*"))
+nKospi = len(glob.glob("info_kospi*"))
 
 
 pd.set_option('expand_frame_repr',False)
-tree = pd.read_csv("./info_kospi_1.csv",encoding='cp949').T
-for i in range(7):
-    fileAdd = "./info_kospi_%d.csv"%(i+2)
+tree = pd.DataFrame()
+# tree = pd.read_csv("./info_kospi_1.csv",encoding='cp949').T
+for i in range(nKospi):
+    fileAdd = "./info_kospi_%d.csv"%(i+1)
     treeAdd = pd.read_csv(fileAdd,encoding='cp949').T
     tree = pd.concat([tree,treeAdd],axis=1)
 
-for i in range(13):
+for i in range(nKosdaq):
     fileAdd = "./info_kosdaq_%d.csv"%(i+1)
     treeAdd = pd.read_csv(fileAdd,encoding='cp949').T
     tree = pd.concat([tree,treeAdd],axis=1)
 
 tree = tree.T
 
-#tree1 = pd.read_csv("./info_kospi_1.csv",encoding='cp949').T
-#tree2 = pd.read_csv("./info_kospi_2.csv",encoding='cp949').T
-#tree = pd.concat([tree1,tree2],axis=1).T
+tree['시가총액 (억)'] = tree['상장주식수'] * tree['현재주가'] / 10**8
 
 
-#print (tree.columns[7])
-screen1 = tree[ (tree["PBR"] > 0.4) & (tree["PBR"] < 1.2) ]
-screen2 = screen1[(screen1["PER"]>3) &  (screen1["PER"]<15)] #PER cut
-screen3 = screen2[screen2[tree.columns[7]]>2]
-screen4 = screen3[screen3[tree.columns[8]]>80]
+# 조건 추가
+cond = pd.DataFrame()
+cond["PBR"] = (tree["PBR"] > 0.4) & (tree["PBR"] < 1.2)
+cond["PER"] = (tree["PER"]>3) &  (tree["PER"]<15)
+cond["배당수익률"] = tree['배당수익률 (%)']>2
+cond["당좌비율"] = tree['당좌비율 (%)']>80
+
+# 조건에 and 연산
+test = cond["PBR"]
+for key in cond.keys():
+    test = test & cond[key]
+
+# 필터링
+result = tree[test]
 
 # 종목코드를 6자리로 만들기 위한 코드 두 줄
-# screen4.loc[:, ('종목코드')] = screen4.loc[:, ('종목코드')].astype(np.str)
-# screen4.loc[:, ('종목코드')] = screen4.loc[:, ('종목코드')].str.zfill(6)
-# screen4.loc[:, ('종목코드')] = 1
+result.loc[:, ('종목코드')] = result.loc[:, ('종목코드')].astype(np.str)
+result.loc[:, ('종목코드')] = result.loc[:, ('종목코드')].str.zfill(6)
 
-# dfmi.loc[:,('one','second')] = value
-
-#첫 열이 의미가 없어서 지움
-screen4.drop('Unnamed: 0', 1)
+result['PSR'] = result['시가총액 (억)'] / result['매출액 (억)']
+result['POR'] = result['시가총액 (억)'] / result['영업이익 (억)']
 
 # print(screen4['종목코드'])
-print(tabulate.tabulate(screen4, headers="keys", tablefmt='pipe'))
-screen4.to_csv("./screen.csv")
+print(tabulate.tabulate(result, headers="keys", tablefmt='grid'))
+result.to_csv("./screen.csv")
 #print (tree.T)
 
 
