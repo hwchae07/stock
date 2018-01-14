@@ -7,6 +7,7 @@ import pandas as pd
 import numpy as np
 import tabulate as tabulate
 import glob
+from getCodes import *
 #import matplotlib.pyplot as plt
 
 #print(get_profile_naver("002460"))
@@ -29,9 +30,12 @@ def takeDataFromNaver(doOrNot):  # 이 안에 fs_to_csv 가 정의되어 있음
         :param groupIndex : 몇 번째 그룹의 종목들을 가져올 것이냐. 한 종목에 150개
         :return: 없음. csv 파일 하나가 폴더 안에 만들어짐.
         """
-        fin = open(marketName + ".csv", "r")
-        lines = fin.readlines()
-        fin.close()
+        if marketName == 'kospi':
+            list = stock_master(1)['종목코드']
+        elif marketName == 'kosdaq':
+            list = stock_master(2)['종목코드']
+
+        lines = list
         howMany = 150
         evtNumber = len(lines)
         numberGroup = int(evtNumber / howMany + 1)
@@ -103,7 +107,7 @@ def makeDataFrame():      # csv에 나눠서 저장된 정보를 하나의 DataF
 
 # 네이버로부터 fs_to_csv 함수를 사용해서 csv를 만듦. 150개씩 끊어서...
 # csv를 만들거면 true, 이미 csv 파일이 있으면 false~~!
-takeDataFromNaver(False)
+takeDataFromNaver(True)
 
 # 만든 csv 파일들을 합쳐서 DataFrame으로 만듦
 fullList = makeDataFrame()
