@@ -112,6 +112,10 @@ takeDataFromNaver(True)
 # 만든 csv 파일들을 합쳐서 DataFrame으로 만듦
 fullList = makeDataFrame()
 
+# 원하는 지표 생성  (사실이건 makeDataFrame에서 해야할 것 같지만.. 가시성을 위해 여기 둔다)
+fullList.loc[:, 'PSR'] = fullList['시가총액 (억)'] / fullList['매출액 (억)']
+fullList.loc[:, 'POR'] = fullList['시가총액 (억)'] / fullList['영업이익 (억)']
+
 # 필터링 할 조건 추가
 cond = pd.DataFrame()
 cond["PBR 조건"] = (fullList["PBR"] > 0.4) & (fullList["PBR"] < 1.2)
@@ -130,10 +134,6 @@ result = fullList[fullCondition]
 # 종목코드를 6자리로 만들기 위한 코드
 code = result['종목코드'].astype(np.str)
 result.loc[:, '종목코드'] = code.str.zfill(6)
-
-# 원하는 지표 생성
-result.loc[:, 'PSR'] = result['시가총액 (억)'] / result['매출액 (억)']
-result.loc[:, 'POR'] = result['시가총액 (억)'] / result['영업이익 (억)']
 
 # output에 출력
 print(tabulate.tabulate(result, headers="keys", tablefmt='grid'))
