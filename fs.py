@@ -27,11 +27,11 @@ print(df.T)
 """
 
 
-def fs_to_csv(marketName="kospi",groupIndex=1):
+def fs_to_csv(marketName = "kospi", groupIndex = 1):
     fin = open(marketName+".csv","r")
     lines = fin.readlines()
     fin.close()
-    howMany = 10
+    howMany = 150
     evtNumber = len(lines)
     numberGroup = int(evtNumber/howMany+1)
     groupRange = range((groupIndex-1)*howMany,groupIndex*howMany)
@@ -43,7 +43,7 @@ def fs_to_csv(marketName="kospi",groupIndex=1):
     print (groupRange)
 
     for ticker in groupRange:
-        print (ticker)
+        print(ticker)
 
         time.sleep(0.5)
         if(ticker == groupRange[0]):
@@ -53,8 +53,8 @@ def fs_to_csv(marketName="kospi",groupIndex=1):
             tree[ticker] = get_profile_naver(lines[ticker].strip())
 
 
-    tree.T.to_csv("./info_"+marketName+"_%d.csv" % groupIndex)
-    print("save "+marketName+" is done...")
+    tree.T.to_csv("./info_" + marketName + "_%d.csv" % groupIndex)
+    print("save " + marketName + " is done...")
 
     return 1
 
@@ -90,13 +90,13 @@ tree = pd.DataFrame()
 # tree = pd.read_csv("./info_kospi_1.csv",encoding='cp949').T
 for i in range(nKospi):
     fileAdd = "./info_kospi_%d.csv"%(i+1)
-    treeAdd = pd.read_csv(fileAdd,encoding='cp949').T
-    tree = pd.concat([tree,treeAdd],axis=1)
+    treeAdd = pd.read_csv(fileAdd, encoding = 'cp949').T
+    tree = pd.concat([tree, treeAdd], axis = 1)
 
 for i in range(nKosdaq):
     fileAdd = "./info_kosdaq_%d.csv"%(i+1)
-    treeAdd = pd.read_csv(fileAdd,encoding='cp949').T
-    tree = pd.concat([tree,treeAdd],axis=1)
+    treeAdd = pd.read_csv(fileAdd, encoding = 'cp949').T
+    tree = pd.concat([tree,treeAdd], axis = 1)
 
 tree = tree.T
 
@@ -106,9 +106,9 @@ tree['시가총액 (억)'] = tree['상장주식수'] * tree['현재주가'] / 10
 # 조건 추가
 cond = pd.DataFrame()
 cond["PBR"] = (tree["PBR"] > 0.4) & (tree["PBR"] < 1.2)
-cond["PER"] = (tree["PER"]>3) &  (tree["PER"]<15)
-cond["배당수익률"] = tree['배당수익률 (%)']>2
-cond["당좌비율"] = tree['당좌비율 (%)']>80
+cond["PER"] = (tree["PER"] > 3) & (tree["PER"] < 15)
+cond["배당수익률"] = tree['배당수익률 (%)'] > 2
+cond["당좌비율"] = tree['당좌비율 (%)'] > 80
 
 # 조건에 and 연산
 test = cond["PBR"]
@@ -119,8 +119,8 @@ for key in cond.keys():
 result = tree[test]
 
 # 종목코드를 6자리로 만들기 위한 코드 두 줄
-result.loc[:, ('종목코드')] = result.loc[:, ('종목코드')].astype(np.str)
-result.loc[:, ('종목코드')] = result.loc[:, ('종목코드')].str.zfill(6)
+result.loc[:, '종목코드'] = result.loc[:, '종목코드'].astype(np.str)
+result.loc[:, '종목코드'] = result.loc[:, '종목코드'].str.zfill(6)
 
 result['PSR'] = result['시가총액 (억)'] / result['매출액 (억)']
 result['POR'] = result['시가총액 (억)'] / result['영업이익 (억)']
