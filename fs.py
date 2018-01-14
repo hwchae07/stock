@@ -102,12 +102,13 @@ def makeDataFrame():      # csv에 나눠서 저장된 정보를 하나의 DataF
         tree = pd.concat([tree, treeAdd], axis=1)
     tree = tree.T
     tree['시가총액 (억)'] = tree['상장주식수'] * tree['현재주가'] / 10**8
+    tree = tree.drop('Unnamed: 0', 1)
     return tree
 
 
 # 네이버로부터 fs_to_csv 함수를 사용해서 csv를 만듦. 150개씩 끊어서...
 # csv를 만들거면 true, 이미 csv 파일이 있으면 false~~!
-takeDataFromNaver(True)
+takeDataFromNaver(False)
 
 # 만든 csv 파일들을 합쳐서 DataFrame으로 만듦
 fullList = makeDataFrame()
@@ -115,6 +116,7 @@ fullList = makeDataFrame()
 # 원하는 지표 생성  (사실이건 makeDataFrame에서 해야할 것 같지만.. 가시성을 위해 여기 둔다)
 fullList.loc[:, 'PSR'] = fullList['시가총액 (억)'] / fullList['매출액 (억)']
 fullList.loc[:, 'POR'] = fullList['시가총액 (억)'] / fullList['영업이익 (억)']
+fullList.loc[:, 'ROE'] = fullList['PBR'] / fullList['PER']
 
 # 필터링 할 조건 추가
 cond = pd.DataFrame()
@@ -122,6 +124,7 @@ cond["PBR 조건"] = (fullList["PBR"] > 0.4) & (fullList["PBR"] < 1.2)
 cond["PER 조건"] = (fullList["PER"] > 3) & (fullList["PER"] < 15)
 cond["배당수익률 조건"] = fullList['배당수익률 (%)'] > 2
 cond["당좌비율 조건"] = fullList['당좌비율 (%)'] > 80
+# cond["POR 조건"] = fullList['POR'] < 10
 
 # 각각의 조건에 and 연산
 fullCondition = cond[cond.columns[0]]  # 첫 번째 열로 fullCondition 초기화
@@ -141,6 +144,8 @@ print(tabulate.tabulate(result, headers="keys", tablefmt='grid'))
 # csv로 저장
 result.to_csv("./screen.csv")
 
+# 갯수 출력
+print(len(result))
 
 """
 table = get_fin_table_sejong_data("002460","a")
