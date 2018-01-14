@@ -116,15 +116,15 @@ fullList = makeDataFrame()
 # 원하는 지표 생성  (사실이건 makeDataFrame에서 해야할 것 같지만.. 가시성을 위해 여기 둔다)
 fullList.loc[:, 'PSR'] = fullList['시가총액 (억)'] / fullList['매출액 (억)']
 fullList.loc[:, 'POR'] = fullList['시가총액 (억)'] / fullList['영업이익 (억)']
-fullList.loc[:, 'ROE'] = fullList['PBR'] / fullList['PER']
+fullList.loc[:, 'ROE'] = fullList['PBR'] / fullList['PER'] *100
 
 # 필터링 할 조건 추가
 cond = pd.DataFrame()
 cond["PBR 조건"] = (fullList["PBR"] > 0.4) & (fullList["PBR"] < 1.2)
-cond["PER 조건"] = (fullList["PER"] > 3) & (fullList["PER"] < 15)
-cond["배당수익률 조건"] = fullList['배당수익률 (%)'] > 2
+#cond["PER 조건"] = (fullList["PER"] > 3) & (fullList["PER"] < 15)
+cond["배당수익률 조건"] = fullList['배당수익률 (%)'] > 1
 cond["당좌비율 조건"] = fullList['당좌비율 (%)'] > 80
-# cond["POR 조건"] = fullList['POR'] < 10
+cond["POR 조건"] = fullList['POR'] < 10
 
 # 각각의 조건에 and 연산
 fullCondition = cond[cond.columns[0]]  # 첫 번째 열로 fullCondition 초기화
