@@ -138,9 +138,9 @@ def get_profile_naver(ticker):
         except:
             oP = np.NaN  # 나중에 None 넣던지...
     else:
-        quick = 0 #나중에 None 넣던지...
-        sales = 0
-        oP = 0
+        quick = np.NaN #나중에 None 넣던지...
+        sales = np.NaN
+        oP = np.NaN
 
     title.append("당좌비율 (%)")
     data.append(quick)  # 당좌비율 저장

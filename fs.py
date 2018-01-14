@@ -31,7 +31,7 @@ def fs_to_csv(marketName="kospi",groupIndex=1):
     fin = open(marketName+".csv","r")
     lines = fin.readlines()
     fin.close()
-    howMany = 150
+    howMany = 10
     evtNumber = len(lines)
     numberGroup = int(evtNumber/howMany+1)
     groupRange = range((groupIndex-1)*howMany,groupIndex*howMany)
