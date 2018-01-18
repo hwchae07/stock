@@ -1,5 +1,5 @@
 #!/usr/local/bin/python3
-#-*- coding: utf-8 -*- 
+#-*- coding: utf-8 -*-
 #naver에서 가져와보자...
 
 from urllib.request import urlopen, Request
@@ -27,14 +27,14 @@ def get_profile_naver(ticker):
     fs_url = "http://finance.naver.com/item/main.nhn?code="+ticker
     req = Request(fs_url)
     html_text = urlopen(req).read()
-    
+
     soup = bs(html_text,'lxml')
     t  = soup.find(text = "종목 시세 정보") #종목시세정보 가져온다
     t_ = t.find_all_next("dd")
 
     title = []
     data  = []
-    
+
     #종목 이름
     title.append("기업명")
     data.append(t_[1].text[3:].strip()) #기업명 저장
@@ -42,10 +42,10 @@ def get_profile_naver(ticker):
     title.append("종목코드")
     data.append(ticker) #종목코드 저장
 
-    ror = re.search('(\d+)(\s\w+)',t_[3].text[3:].replace(',','')) #정규표현식을 이용해서 현재주가만 골라옴
+    ror = re.search('(\d+)(\s\w+)',t_[3].text[3:].replace(",","")) #정규표현식을 이용해서 현재주가만 골라옴
     #현재 주가
     title.append("현재주가")
-    data.append(float(ror[1])) #현재주가 저장
+    data.append(float(ror.group(1))) #현재주가 저장
 
     number  = soup.find(text = "상장주식수")
     number_ = float(number.find_next("td").text.replace(',',''))
@@ -71,17 +71,17 @@ def get_profile_naver(ticker):
         per = np.NaN
     else:
         per = float(per.text.replace(",",""))
-        
+
     if pbr is None:
         pbr = np.NaN
     else:
         pbr = float(pbr.text)
-        
+
     if dvr is None:
         dvr = np.NaN
     else:
         dvr = float(dvr.text)
-        
+
     #per
     title.append("PER")
     data.append(per) #per 저장
@@ -91,8 +91,8 @@ def get_profile_naver(ticker):
     #dividend ratio
     title.append("배당수익률 (%)")
     data.append(dvr) #배당수익률 저장
-    
-    
+
+
     #per_table = soup.find(class_= "per_table")
     #per = per_table.find_next("em",{"id" : "_per"})
 
@@ -129,12 +129,12 @@ def get_profile_naver(ticker):
             quick = np.NaN #나중에 None 넣던지...
 
         try:
-            sales = float(re.search('\d+', dd[2].text.replace(',', ''))[0])
+            sales = float(re.search('\d+', dd[2].text.replace(',', '')).group())
         except:
             sales = np.NaN # 나중에 None 넣던지...
 
         try:
-            oP = float(re.search('\d+', ddd[2].text.replace(',', ''))[0])
+            oP = float(re.search('\d+', ddd[2].text.replace(',', '')).group())
         except:
             oP = np.NaN  # 나중에 None 넣던지...
     else:
@@ -153,11 +153,11 @@ def get_profile_naver(ticker):
 
     #pd.set_option("display.column_space",20)
     info = DataFrame(data,index=title) #DataFrame형식으로 저장
-    
+
     return info
 
 
-# print(get_profile_naver("092780"))
+#print(get_profile_naver("092780"))
 #print( get_profile_naver("204210"))
 #print (get_profile_naver("005930"))
 #print (get_profile_naver("079440"))
@@ -180,7 +180,7 @@ req = Request(fs_url)
 html_text = urlopen(req).read()
 
 soup = bs(html_text,'html.parser')
-                  
+
 item = "당좌비율"
 #print(soup)
 d  = soup.find(text=item)
@@ -194,4 +194,3 @@ data = d_[0:3]
 res = [float(v.text) for v in data]
 print (res)
 """
-

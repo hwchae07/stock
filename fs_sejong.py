@@ -1,22 +1,22 @@
 #!/usr/local/bin/python3
-#-*- coding: utf-8 -*- 
+#-*- coding: utf-8 -*-
 #아래 페이지 그대로 가져옴
 #http://blog.naver.com/PostView.nhn?blogId=htk1019&logNo=221035489722&parentCategoryNo=&categoryNo=&viewDate=&isShowPopularPosts=false&from=postView
 
 #urllib is a package that collect several modules for working with URLs
 #urllib.request for opening and reading URLs
- 
+
 
 from urllib.request import urlopen, Request
 from bs4 import BeautifulSoup as bs
 import pandas as pd
 
 def get_html_sejong_fs(ticker, freq='a'):
-    
+
     """
     종목코드를 입력하면 해당 종목의 연간 재무데이터 html 파일의 소스를 반환한다.
     :param ticker: 종목코드.
-    :param freq: a : 연간재무데이터, q : 분기 재무데이터        
+    :param freq: a : 연간재무데이터, q : 분기 재무데이터
     """
 
     #연간 재무데이터 URL
@@ -63,7 +63,7 @@ print (soup.prettify())
 
 def ext_fin_sejong_data(ticker, item, n, freq):
     """
-            
+
     :param ticker: 종목코드
     :param item: html_text file에서 원하는 계정의 데이터를 가져혼다.
     :param n: 최근 몇 개의 데이터를 가져 올것인지
@@ -112,12 +112,16 @@ def get_fin_table_sejong_data(ticker, freq='a'):
             df.columns = df.iloc[0]
             df = df.drop([0])
             df = df.rename(index=str, columns={df.columns[0]: "연도"})
-            
+
 
         # 분기 재무데이터 테이블을 한꺼번에 가져옵니다.
         elif freq == 'q':
             fs_url = "http://www.sejongdata.com/business_include_fr/table_main0_bus_02.html?no=" + ticker
-            df = pd.read_html(fs_url, encoding='utf-8')
+            df = pd.read_html(fs_url, encoding='utf-8')[0]
+            df = df.T
+            df.columns = df.iloc[0]
+            df = df.drop([0])
+            df = df.rename(index=str, columns={df.columns[0]: "분기"})
         else:
             fs_url = None
             df = None

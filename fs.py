@@ -1,5 +1,5 @@
 #!/usr/local/bin/python3
-#-*- coding: utf-8 -*- 
+#-*- coding: utf-8 -*-
 from fs_naver import *
 from fs_sejong import *
 import time
@@ -30,12 +30,17 @@ def takeDataFromNaver(doOrNot):  # 이 안에 fs_to_csv 가 정의되어 있음
         :param groupIndex : 몇 번째 그룹의 종목들을 가져올 것이냐. 한 종목에 150개
         :return: 없음. csv 파일 하나가 폴더 안에 만들어짐.
         """
+        """
         if marketName == 'kospi':
             list = stock_master(1)['종목코드']
         elif marketName == 'kosdaq':
             list = stock_master(2)['종목코드']
 
         lines = list
+        """
+        fin = open(marketName+".csv","r")
+        lines = fin.readlines()
+        fin.close()
         howMany = 150
         evtNumber = len(lines)
         numberGroup = int(evtNumber / howMany + 1)
@@ -94,17 +99,18 @@ def makeDataFrame():      # csv에 나눠서 저장된 정보를 하나의 DataF
     tree = pd.DataFrame()
     for i in range(nKospi):
         fileAdd = "./info_kospi_%d.csv"%(i+1)
-        treeAdd = pd.read_csv(fileAdd, encoding='cp949').T
+        treeAdd = pd.read_csv(fileAdd).T
+        #treeAdd = pd.read_csv(fileAdd, encoding='cp949').T
         tree = pd.concat([tree, treeAdd], axis=1)
     for i in range(nKosdaq):
         fileAdd = "./info_kosdaq_%d.csv"%(i+1)
-        treeAdd = pd.read_csv(fileAdd, encoding='cp949').T
+        treeAdd = pd.read_csv(fileAdd).T
+        #treeAdd = pd.read_csv(fileAdd, encoding='cp949').T
         tree = pd.concat([tree, treeAdd], axis=1)
     tree = tree.T
     tree['시가총액 (억)'] = tree['상장주식수'] * tree['현재주가'] / 10**8
     tree = tree.drop('Unnamed: 0', 1)
     return tree
-
 
 # 네이버로부터 fs_to_csv 함수를 사용해서 csv를 만듦. 150개씩 끊어서...
 # csv를 만들거면 true, 이미 csv 파일이 있으면 false~~!
@@ -118,13 +124,16 @@ fullList.loc[:, 'PSR'] = fullList['시가총액 (억)'] / fullList['매출액 (�
 fullList.loc[:, 'POR'] = fullList['시가총액 (억)'] / fullList['영업이익 (억)']
 fullList.loc[:, 'ROE'] = fullList['PBR'] / fullList['PER'] *100
 
+fullList.to_csv("./fs_full.csv")
+
 # 필터링 할 조건 추가
 cond = pd.DataFrame()
-cond["PBR 조건"] = (fullList["PBR"] > 0.4) & (fullList["PBR"] < 1.2)
+#cond["PBR 조건"] = (fullList["PBR"] > 0.4) & (fullList["PBR"] < 1.2)
 #cond["PER 조건"] = (fullList["PER"] > 3) & (fullList["PER"] < 15)
-cond["배당수익률 조건"] = fullList['배당수익률 (%)'] > 1
+cond["배당수익률 조건"] = fullList['배당수익률 (%)'] > 2
 cond["당좌비율 조건"] = fullList['당좌비율 (%)'] > 80
-cond["POR 조건"] = fullList['POR'] < 10
+cond["PSR 조건"] = fullList['PSR'] < 1
+#cond["POR 조건"] = fullList['POR'] < 10
 
 # 각각의 조건에 and 연산
 fullCondition = cond[cond.columns[0]]  # 첫 번째 열로 fullCondition 초기화
