@@ -99,13 +99,15 @@ def makeDataFrame():      # csv에 나눠서 저장된 정보를 하나의 DataF
     tree = pd.DataFrame()
     for i in range(nKospi):
         fileAdd = "./info_kospi_%d.csv"%(i+1)
-        treeAdd = pd.read_csv(fileAdd).T
+        #treeAdd = pd.read_csv(fileAdd).T
         #treeAdd = pd.read_csv(fileAdd, encoding='cp949').T
+        treeAdd = pd.read_csv(fileAdd, encoding='euc-kr').T
         tree = pd.concat([tree, treeAdd], axis=1)
     for i in range(nKosdaq):
         fileAdd = "./info_kosdaq_%d.csv"%(i+1)
-        treeAdd = pd.read_csv(fileAdd).T
+        #treeAdd = pd.read_csv(fileAdd).T
         #treeAdd = pd.read_csv(fileAdd, encoding='cp949').T
+        treeAdd = pd.read_csv(fileAdd, encoding='euc-kr').T
         tree = pd.concat([tree, treeAdd], axis=1)
     tree = tree.T
     tree['시가총액 (억)'] = tree['상장주식수'] * tree['현재주가'] / 10**8
@@ -126,14 +128,16 @@ fullList.loc[:, 'ROE'] = fullList['PBR'] / fullList['PER'] *100
 
 fullList.to_csv("./fs_full.csv")
 
-# 필터링 할 조건 추가
 cond = pd.DataFrame()
 #cond["PBR 조건"] = (fullList["PBR"] > 0.4) & (fullList["PBR"] < 1.2)
-#cond["PER 조건"] = (fullList["PER"] > 3) & (fullList["PER"] < 15)
-cond["배당수익률 조건"] = fullList['배당수익률 (%)'] > 2
+cond["PER 조건"] = (fullList["PER"] > 3)
+#cond["배당수익률 조건"] = fullList['배당수익률 (%)'] > 2
 cond["당좌비율 조건"] = fullList['당좌비율 (%)'] > 80
-cond["PSR 조건"] = fullList['PSR'] < 1
-#cond["POR 조건"] = fullList['POR'] < 10
+#cond["POR 조건"] = fullList['POR']<12
+#cond["PSR 조건"] = fullList['PSR'] < 0.5
+cond["ROE 조건"] = fullList['ROE']>0
+cond["PBR 조건"] = fullList['PBR']>0.3
+
 
 # 각각의 조건에 and 연산
 fullCondition = cond[cond.columns[0]]  # 첫 번째 열로 fullCondition 초기화

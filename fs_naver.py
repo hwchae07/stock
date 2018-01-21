@@ -43,9 +43,10 @@ def get_profile_naver(ticker):
     data.append(ticker) #종목코드 저장
 
     ror = re.search('(\d+)(\s\w+)',t_[3].text[3:].replace(",","")) #정규표현식을 이용해서 현재주가만 골라옴
+    price = float(ror.group(1))
     #현재 주가
     title.append("현재주가")
-    data.append(float(ror.group(1))) #현재주가 저장
+    data.append(price) #현재주가 저장
 
     number  = soup.find(text = "상장주식수")
     number_ = float(number.find_next("td").text.replace(',',''))
@@ -104,11 +105,16 @@ def get_profile_naver(ticker):
         quick = np.NaN
         sales = np.NaN
         oP = np.NaN
+        roe1 = np.NaN
+        roe2 = np.NaN
+        roe3 = np.NaN
+        debtRatio1 = np.NaN
+        debtRatio2 = np.NaN
+        debtRatio3 = np.NaN
     elif earning_table is None:
         # 당좌비율 찾기1
         # d  = soup.find(class_="h_th2 th_cop_anal15")
         d  = soup.find(text="당좌비율")
-        # print(d)
         d  = d.find_all_next("td")
 
         # 매출액 찾기
@@ -116,12 +122,45 @@ def get_profile_naver(ticker):
         dd = soup.find(text="매출액")
         dd = dd.find_all_next("td")
 
-        # print(dd)
-
         # 영업이익 찾기
         # ddd = soup.find(class_='h_th2 th_cop_comp9')
         ddd = soup.find(text="영업이익")
         ddd = ddd.find_all_next("td")
+
+        #roe1,2,3 찾기
+        droe = soup.find(text="ROE(지배주주)")
+        droe = droe.find_all_next("td")
+
+        #debt ratio 1,2,3
+        ddebt = soup.find(text="부채비율")
+        ddebt = ddebt.find_all_next("td")
+
+        try:
+            roe1 = float(droe[0].text)
+        except:
+            roe1 = np.NaN
+        try:
+            roe2 = float(droe[1].text)
+        except:
+            roe2 = np.NaN
+        try:
+            roe3 = float(droe[2].text)
+        except:
+            roe3 = np.NaN
+
+
+        try:
+            debtRatio1 = float(ddebt[0].text)
+        except:
+            debtRatio1 = np.NaN
+        try:
+            debtRatio2 = float(ddebt[1].text)
+        except:
+            debtRatio2 = np.NaN
+        try:
+            debtRatio3 = float(ddebt[2].text)
+        except:
+            debtRatio3 = np.NaN
 
         try:
             quick = float(d[2].text)
@@ -141,6 +180,16 @@ def get_profile_naver(ticker):
         quick = np.NaN #나중에 None 넣던지...
         sales = np.NaN
         oP = np.NaN
+        roe1 = np.NaN
+        roe2 = np.NaN
+        roe3 = np.NaN
+        debtRatio1 = np.NaN
+        debtRatio2 = np.NaN
+        debtRatio3 = np.NaN
+
+    roa1 = roe1 / (1 + debtRatio1 / 100)
+    roa2 = roe2 / (1 + debtRatio2 / 100)
+    roa3 = roe3 / (1 + debtRatio3 / 100)
 
     title.append("당좌비율 (%)")
     data.append(quick)  # 당좌비율 저장
@@ -151,13 +200,44 @@ def get_profile_naver(ticker):
     title.append("영업이익 (억)")
     data.append(oP)  # 영업이익 저장
 
+    number_of_roa = 0
+    if not np.isnan(roa1):
+        number_of_roa = number_of_roa + 1
+    if not np.isnan(roa2):
+        number_of_roa = number_of_roa + 1
+    if not np.isnan(roa3):
+        number_of_roa = number_of_roa + 1
+
+    if number_of_roa is 0:
+        number_of_roa = np.NaN
+    avgROA = (roa1 + roa2 + roa3) / number_of_roa
+
+    #title.append("평균 ROA (%)")
+    #data.append(avgROA)
+
+    year = 3
+
+    future_book = (price*number_/pbr)* (1 + avgROA/100 + dvr/100)**year
+    halfPrice = future_book * 0.5 / number_
+    doublePrice = future_book * 2 / number_
+    earning_rate_half = (halfPrice / price)**(1/year)
+    earning_rate_double = (doublePrice / price)**(1/year)
+    #title.append("3년 뒤 주가 (PBR 0.5)")
+    #data.append(halfPrice)
+    #title.append("3년 뒤 주가 (PBR 2)")
+    #data.append(doublePrice)
+    title.append("수익률 (PBR 0.5)")
+    data.append(earning_rate_half)
+    title.append("수익률 (PBR 2)")
+    data.append(earning_rate_double)
+
     #pd.set_option("display.column_space",20)
     info = DataFrame(data,index=title) #DataFrame형식으로 저장
 
     return info
 
 
-#print(get_profile_naver("092780"))
+#print(get_profile_naver("281410"))
 #print( get_profile_naver("204210"))
 #print (get_profile_naver("005930"))
 #print (get_profile_naver("079440"))

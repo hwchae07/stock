@@ -112,7 +112,9 @@ def get_fin_table_sejong_data(ticker, freq='a'):
             df.columns = df.iloc[0]
             df = df.drop([0])
             df = df.rename(index=str, columns={df.columns[0]: "연도"})
-
+            df.index = df["연도"]
+            df = df.T.drop(["연도"]).T
+            df = df.astype(float)
 
         # 분기 재무데이터 테이블을 한꺼번에 가져옵니다.
         elif freq == 'q':
