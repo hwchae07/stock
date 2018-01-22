@@ -29,11 +29,21 @@ def get_profile_naver(ticker):
     html_text = urlopen(req).read()
 
     soup = bs(html_text,'lxml')
+    #네이버 페이지 오류....
+    error_content = soup.find(class_="error_content")
+    if bool(error_content):
+        title = ["기업명","종목코드","현재주가","상장주식수","PER","PBR","배당수익률 (%)","당좌비율 (%)", "매출액 (억)","영업이익 (억)", "1년 수익률 (PBR 0.5)", "1년 수익률 (PBR 2)"]
+        data = [np.NaN,np.NaN,np.NaN,np.NaN,np.NaN,np.NaN,np.NaN,np.NaN,np.NaN,np.NaN,np.NaN,np.NaN]
+        info = DataFrame(data,index=title) #DataFrame형식으로 저장
+        return info
+    else:
+        title = []
+        data  = []
+
+
     t  = soup.find(text = "종목 시세 정보") #종목시세정보 가져온다
     t_ = t.find_all_next("dd")
 
-    title = []
-    data  = []
 
     #종목 이름
     title.append("기업명")
@@ -226,9 +236,9 @@ def get_profile_naver(ticker):
     #data.append(halfPrice)
     #title.append("3년 뒤 주가 (PBR 2)")
     #data.append(doublePrice)
-    title.append("수익률 (PBR 0.5)")
+    title.append("1년 수익률 (PBR 0.5)")
     data.append(earning_rate_half)
-    title.append("수익률 (PBR 2)")
+    title.append("1년 수익률 (PBR 2)")
     data.append(earning_rate_double)
 
     #pd.set_option("display.column_space",20)
@@ -237,6 +247,7 @@ def get_profile_naver(ticker):
     return info
 
 
+#print(get_profile_naver("217810"))
 #print(get_profile_naver("281410"))
 #print( get_profile_naver("204210"))
 #print (get_profile_naver("005930"))

@@ -59,10 +59,13 @@ def takeDataFromNaver(doOrNot):  # 이 안에 fs_to_csv 가 정의되어 있음
                 tree.columns.values[0] = ticker
             else:
                 tree[ticker] = get_profile_naver(lines[ticker].strip())
-        tree.T.to_csv("./info_" + marketName + "_%d.csv" % groupIndex)
+                #print(lines[ticker])
+        tree.T.to_csv("./info_" + marketName + "_%d.csv" % groupIndex,encoding='utf-8')
         print("save " + marketName + " is done...")
         return
     # get kosdaq information from Naver
+
+    #fs_to_csv("kosdaq",2)
 
     for i in range(1, 10):
         try:
@@ -99,15 +102,15 @@ def makeDataFrame():      # csv에 나눠서 저장된 정보를 하나의 DataF
     tree = pd.DataFrame()
     for i in range(nKospi):
         fileAdd = "./info_kospi_%d.csv"%(i+1)
-        #treeAdd = pd.read_csv(fileAdd).T
+        treeAdd = pd.read_csv(fileAdd).T
         #treeAdd = pd.read_csv(fileAdd, encoding='cp949').T
-        treeAdd = pd.read_csv(fileAdd, encoding='euc-kr').T
+        #treeAdd = pd.read_csv(fileAdd, encoding='euc-kr').T
         tree = pd.concat([tree, treeAdd], axis=1)
     for i in range(nKosdaq):
         fileAdd = "./info_kosdaq_%d.csv"%(i+1)
-        #treeAdd = pd.read_csv(fileAdd).T
+        treeAdd = pd.read_csv(fileAdd).T
         #treeAdd = pd.read_csv(fileAdd, encoding='cp949').T
-        treeAdd = pd.read_csv(fileAdd, encoding='euc-kr').T
+        #treeAdd = pd.read_csv(fileAdd, encoding='euc-kr').T
         tree = pd.concat([tree, treeAdd], axis=1)
     tree = tree.T
     tree['시가총액 (억)'] = tree['상장주식수'] * tree['현재주가'] / 10**8
