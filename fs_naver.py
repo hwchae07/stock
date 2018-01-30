@@ -230,8 +230,11 @@ def get_profile_naver(ticker):
     future_book = (price*number_/pbr)* (1 + avgROA/100 + dvr/100)**year
     halfPrice = future_book * 0.5 / number_
     doublePrice = future_book * 2 / number_
+    equalPrice = future_book * pbr / number_
+
     earning_rate_half = (halfPrice / price)**(1/year)
     earning_rate_double = (doublePrice / price)**(1/year)
+    earning_rate_equal = (equalPrice / price)**(1/year)
     #title.append("3년 뒤 주가 (PBR 0.5)")
     #data.append(halfPrice)
     #title.append("3년 뒤 주가 (PBR 2)")
@@ -240,6 +243,8 @@ def get_profile_naver(ticker):
     data.append(earning_rate_half)
     title.append("1년 수익률 (PBR 2)")
     data.append(earning_rate_double)
+    title.append("1년 수익률 (PBR 유지)")
+    data.append(earning_rate_equal)
 
     #pd.set_option("display.column_space",20)
     info = DataFrame(data,index=title) #DataFrame형식으로 저장

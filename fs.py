@@ -119,7 +119,7 @@ def makeDataFrame():      # csv에 나눠서 저장된 정보를 하나의 DataF
 
 # 네이버로부터 fs_to_csv 함수를 사용해서 csv를 만듦. 150개씩 끊어서...
 # csv를 만들거면 true, 이미 csv 파일이 있으면 false~~!
-takeDataFromNaver(False)
+takeDataFromNaver(True)
 
 # 만든 csv 파일들을 합쳐서 DataFrame으로 만듦
 fullList = makeDataFrame()
